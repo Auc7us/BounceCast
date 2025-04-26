@@ -15,9 +15,9 @@ class Ball:
         self.h = window_height
         self.gravity = gravity
         self.pos = np.array([self.w / 2, self.h / 2], dtype=float)
-        self.vel = np.array([0.0, 1000.0], dtype=float)
+        self.vel = np.array([1000.0, 1000.0], dtype=float)
 
-    def update(self, dt):
+    def update(self, dt, coeff_of_restitution=1.0):
         """
         update position and velocity over timestep dt,
         applying gravity and bouncing off the walls.
@@ -28,10 +28,18 @@ class Ball:
         # check for collision with top/bottom walls
         if self.pos[1] - self.radius < 0:
             self.pos[1] = self.radius
-            self.vel[1] *= -1
+            self.vel[1] *= -coeff_of_restitution
         elif self.pos[1] + self.radius > self.h:
             self.pos[1] = self.h - self.radius
-            self.vel[1] *= -1
+            self.vel[1] *= -coeff_of_restitution
+        
+        # check for collision with left/right walls
+        if self.pos[0] - self.radius < 0:
+            self.pos[0] = self.radius
+            self.vel[0] *= -coeff_of_restitution
+        elif self.pos[0] + self.radius > self.w:
+            self.pos[0] = self.w - self.radius
+            self.vel[0] *= -coeff_of_restitution
 
     def draw(self, frame):
         center = (int(round(self.pos[0])), int(round(self.pos[1])))
