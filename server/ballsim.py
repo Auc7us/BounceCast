@@ -14,7 +14,8 @@ class Ball:
         self.w = window_width
         self.h = window_height
         self.gravity = gravity
-        self.pos = np.array([self.w / 2, self.h / 2], dtype=float)
+        # Starting position and velocity 
+        self.pos = np.array([self.w / 2, self.h / 2], dtype=float) 
         self.vel = np.array([1000.0, 1000.0], dtype=float)
 
     def update(self, dt, coeff_of_restitution=1.0):
@@ -42,24 +43,42 @@ class Ball:
             self.vel[0] *= -coeff_of_restitution
 
     def draw(self, frame):
+        """
+        Render the ball on the frame.
+        """
         center = (int(round(self.pos[0])), int(round(self.pos[1])))
         cv2.circle(frame, center, self.radius, (0, 120, 255), -1)
 
 def run_simulation():
+    # Env Setup
     width, height = 640, 480
     fps = 60
-    dt = 1.0 / fps
-
+    frame_interval = 1.0 / fps
     ball = Ball(radius=12, window_width=width, window_height=height, gravity=980)
+    frame = np.zeros((height, width, 3), dtype=np.uint8)
+
+    prev_time = time.perf_counter()
 
     while True:
-        frame = np.zeros((height, width, 3), dtype=np.uint8)
-        ball.update(dt)
+        loop_start = time.perf_counter()
+         #elapsed time since last physics update
+        dt = loop_start - prev_time
+        dt = min(frame_interval, dt) # in case of compute lag, cap to avoid errorous behavious
+        
+        frame.fill(0) # Reset Env for new frame
+        ball.update(dt, coeff_of_restitution=0.98)
+        prev_time = loop_start
         ball.draw(frame)
         cv2.imshow("Ball", frame)
-        key = cv2.waitKey(int(dt * 1000)) & 0xFF
-        if key == 27:
+        key = cv2.waitKey(1) & 0xFF
+        if key == 27:  # hit ESC to quit
             break
+
+        loop_end = time.perf_counter()
+        elapsed_sim_time = loop_end - loop_start
+        sleep_time = frame_interval - elapsed_sim_time
+        if sleep_time > 0:
+            time.sleep(sleep_time)
 
     cv2.destroyAllWindows()
 
