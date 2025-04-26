@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="A webAPP acting as a client to display video frames received from server, 
+  find location of ball, trasmit location of the ball, and finally and display error in position reported by server">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bouncing Ball App</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <h1>Bouncing Ball WebRTC App</h1>
+
+  <!-- Button -->
+  <button id="connectBtn">Connect to Server</button>
+
+  <!-- Video display -->
+  <div class="video-container">
+    <video id="remoteVideo" autoplay playsinline></video>
+  </div>
+
+  <!-- Error readout -->
+  <div id="errorDisplay"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
