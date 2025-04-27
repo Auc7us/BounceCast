@@ -29,74 +29,6 @@ async def homepage(request):
     """
     return FileResponse(os.path.join(STATIC_ROOT, "index.html"))
 
-
-async def echo(request):
-    """
-    HTTP echo endpoint.
-    """
-    content = await request.body()
-    media_type = request.headers.get("content-type")
-    return Response(content, media_type=media_type)
-
-
-async def logs(request):
-    """
-    Browsable list of QLOG files.
-    """
-    logs = []
-    for name in os.listdir(LOGS_PATH):
-        if name.endswith(".qlog"):
-            s = os.stat(os.path.join(LOGS_PATH, name))
-            file_url = "https://" + request.headers["host"] + "/logs/" + name
-            logs.append(
-                {
-                    "date": datetime.datetime.utcfromtimestamp(s.st_mtime).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ),
-                    "file_url": file_url,
-                    "name": name[:-5],
-                    "qvis_url": QVIS_URL
-                    + "?"
-                    + urlencode({"file": file_url})
-                    + "#/sequence",
-                    "size": s.st_size,
-                }
-            )
-    return templates.TemplateResponse(
-        "logs.html",
-        {
-            "logs": sorted(logs, key=lambda x: x["date"], reverse=True),
-            "request": request,
-        },
-    )
-
-
-async def padding(request):
-    """
-    Dynamically generated data, maximum 50MB.
-    """
-    size = min(50000000, request.path_params["size"])
-    return PlainTextResponse("Z" * size)
-
-
-async def ws(websocket):
-    """
-    WebSocket echo endpoint.
-    """
-    if "chat" in websocket.scope["subprotocols"]:
-        subprotocol = "chat"
-    else:
-        subprotocol = None
-    await websocket.accept(subprotocol=subprotocol)
-
-    try:
-        while True:
-            message = await websocket.receive_text()
-            await websocket.send_text(message)
-    except WebSocketDisconnect:
-        pass
-
-
 async def wt(scope: Scope, receive: Receive, send: Send) -> None:
     """
     WebTransport echo endpoint.
@@ -132,10 +64,6 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
 starlette = Starlette(
     routes=[
         Route("/", homepage),
-        Route("/{size:int}", padding),
-        Route("/echo", echo, methods=["POST"]),
-        Route("/logs", logs),
-        WebSocketRoute("/ws", ws),
         Mount(STATIC_URL, StaticFiles(directory=STATIC_ROOT, html=True)),
     ]
 )
