@@ -4,15 +4,13 @@
 
 import datetime
 import os
-from urllib.parse import urlencode
 
 from starlette.applications import Starlette
-from starlette.responses import PlainTextResponse, Response, FileResponse
-from starlette.routing import Mount, Route, WebSocketRoute
+from starlette.responses import FileResponse
+from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 from starlette.types import Receive, Scope, Send
-from starlette.websockets import WebSocketDisconnect
 
 ROOT = os.path.dirname(__file__)
 STATIC_ROOT = os.environ.get("STATIC_ROOT", os.path.join(ROOT, "client"))
@@ -45,13 +43,13 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
         if message["type"] == "webtransport.stream.receive":
             data = message["data"]
             print("received:", data.decode())
-            # await send(
-            #     {
-            #         "data": message["data"],
-            #         "stream": message["stream"],
-            #         "type": "webtransport.stream.send",
-            #     }
-            # )
+            await send(
+                {
+                    "data": message["data"],
+                    "stream": message["stream"],
+                    "type": "webtransport.stream.send",
+                }
+            )
         elif message["type"] == "webtransport.datagram.receive":
             await send(
                 {

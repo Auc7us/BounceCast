@@ -21,16 +21,20 @@ async function init() {
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
+    transport.closed
+      .then(() => {error_display.textContent = 'Session closed';})
+      .catch((err) => {error_display.textContent = 'Session closed unexpectedly';});
+
     await writer.write(encoder.encode('hello world!'));
 
     (async () => {
       while (true) {
         const { value, done } = await reader.read();
         if (done) {
-          console.log('stream closed by server');
+          error_display.textContent = 'stream closed';
           break;
         }
-        console.log('Received data:', decoder.decode(value));
+        error_display.textContent = decoder.decode(value);
       }
     })();
 
