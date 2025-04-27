@@ -40,11 +40,15 @@ class wtServerProtocol(QuicConnectionProtocol):
             method = headers.get(b":method")
             path   = headers.get(b":path", b"/").decode()
 
+            logging.info(f"Received headers: {headers}")
+
+
             if method == b"GET":
                 rel = path.lstrip("/")
                 if not rel:
-                    rel = "index.html" 
+                    rel = "index.html"
                 fp = os.path.join(CLIENT_ROOT, rel)
+
                 try:
                     with open(fp, "rb") as f:
                         data = f.read()
@@ -53,6 +57,7 @@ class wtServerProtocol(QuicConnectionProtocol):
                         ctype = "application/javascript"
                     elif fp.endswith(".css"):
                         ctype = "text/css"
+
                     self._http.send_headers(
                         stream_id=event.stream_id,
                         headers=[
@@ -60,7 +65,7 @@ class wtServerProtocol(QuicConnectionProtocol):
                             (b"content-type", ctype.encode()),
                             (b"alt-svc", b'h3=":4433"; ma=86400')
                         ],
-                        end_stream=False,
+                        end_stream=False
                     )
                     self._http.send_data(
                         stream_id=event.stream_id,
@@ -68,7 +73,6 @@ class wtServerProtocol(QuicConnectionProtocol):
                         end_stream=True
                     )
                 except FileNotFoundError:
-                    # fallback 404
                     self._send_response(event.stream_id, 404, end_stream=True)
                 return
 
@@ -121,7 +125,7 @@ if __name__ == '__main__':
     configuration = QuicConfiguration(
         alpn_protocols=H3_ALPN,
         is_client=False,
-        max_datagram_frame_size=0,
+        max_datagram_frame_size=65536,
     )
     configuration.load_cert_chain(args.certificate, args.key)
 
