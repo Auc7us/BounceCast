@@ -13,6 +13,12 @@ async function init() {
     await transport.ready;
     console.log('wt session is ready');
     error_display.textContent = 'Connected';
+    
+    const pc = new RTCPeerConnection();
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    const sdpOfferString = offer.sdp;
 
     const { readable, writable } = await transport.createBidirectionalStream();  
 
@@ -21,11 +27,17 @@ async function init() {
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
+    const message = {
+      type: "sdp-offer",
+      sdp: sdpOfferString
+    };
+
     transport.closed
       .then(() => {error_display.textContent = 'Session closed';})
       .catch((err) => {error_display.textContent = 'Session closed unexpectedly';});
 
-    await writer.write(encoder.encode('hello world!'));
+    await writer.write((encoder.encode(JSON.stringify(message))));
+    console.log('sent sdp offer to server');
 
     (async () => {
       while (true) {

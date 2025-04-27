@@ -4,6 +4,7 @@
 
 import datetime
 import os
+import json
 
 from starlette.applications import Starlette
 from starlette.responses import FileResponse
@@ -42,7 +43,12 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
         message = await receive()
         if message["type"] == "webtransport.stream.receive":
             data = message["data"]
-            print("received:", data.decode())
+            # print("received:", data.decode())
+            obj = json.loads(data.decode())
+
+            if obj.get("type") == "sdp-offer":
+                print("received sdp offer ")
+                print(obj["sdp"])
             await send(
                 {
                     "data": message["data"],
