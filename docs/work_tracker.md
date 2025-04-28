@@ -32,7 +32,7 @@ instructions :
 ## Client
 - [x] get frames from server
 - [x] Display frame and find ball location
-- [ ] Return location via WebTransport
+- [ ] Return location via WebTransport copying the frame to hiddencanvas, get pixel data, find weighted average  of with their indices on red channel to find centroid, used a small r>5 to remove minor compression artifacts if they occur; noticed some in vp8 before forcing codec, not sure if theyll occure here but just being safe. 
 
 ## Server
 - [ ] Receive detected location

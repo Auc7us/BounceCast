@@ -18,8 +18,18 @@ async function init() {
     pc.ontrack = (event) => {
       if (event.track.kind === 'video') {
         remote_video.srcObject = event.streams[0];
+        remote_video.onplaying = () => {
+          function animationLoop() {
+            const center = processFrame();
+            if (center) {
+              console.log('Using center:', center);
+            }
+            requestAnimationFrame(animationLoop);
+          }
+          animationLoop();
+        }        
       }
-    };
+    }
 
     const offer = await pc.createOffer({ offerToReceiveVideo: true });
     await pc.setLocalDescription(offer);
@@ -83,5 +93,44 @@ async function init() {
   }
 
 }
+
+
+function processFrame() {
+  const video = document.getElementById('remote_video');
+  const canvas = document.getElementById('hidden_canvas');
+  const ctx = canvas.getContext('2d');
+
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const frameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const pixels = frameData.data; // RGBA values
+  let weightedSumX = 0;
+  let weightedSumY = 0;
+  let totalWeight = 0;
+
+  for (let y = 0; y < canvas.height; y++) {
+    for (let x = 0; x < canvas.width; x++) {
+      const index = (y * canvas.width + x) * 4;
+      const r = pixels[index];
+      if (r > 5) {
+        weightedSumX += x * r;
+        weightedSumY += y * r;
+        totalWeight += r;
+      }
+    }
+  }
+
+  let center = null;
+  if (totalWeight > 0) {
+    const centerX = weightedSumX / totalWeight;
+    const centerY = weightedSumY / totalWeight;
+    center = { x: centerX, y: centerY };
+    console.log(`Ball center at: (${centerX.toFixed(2)}, ${centerY.toFixed(2)})`);
+  } else {
+    console.log("Ball not detected.");
+  }
+  return center;
+
+}
+
 
 connect_btn.addEventListener('click', init);

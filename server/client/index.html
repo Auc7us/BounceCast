@@ -52,10 +52,13 @@
       <video id="remote_video" autoplay playsinline></video>
     </div>
 
-    <!-- Button -->
+    <!-- hidden canvas for frame data -->
+    <canvas id="hidden_canvas" width="640" height="480" style="display: none;"></canvas>
+
+    <!-- Button to connect to server-->
     <button id="connect_btn">Connect to Server</button>
     
-    <!-- Error readout -->
+    <!-- Status display -->
     <div id="status_display"></div>
 
   <script type="module" src="app.js"></script>
