@@ -10,10 +10,10 @@ Note: Use webRTC(aiortc) and webTransport(aioquic)
 
 ## Client
 - [x] Setup simple webApp using js
-- [ ] Send a webRTC request over webtransport 
+- [x] Send a webRTC request over webtransport 
 
 ## Server
-- [ ] Establish handshake by confirming connection with client
+- [x] Establish handshake by confirming connection with client
 - [ ] Spawn Simulation Thread
 - [ ] Consume frames
 - [ ] Encode in h.264 

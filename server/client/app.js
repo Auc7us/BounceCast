@@ -1,6 +1,6 @@
 const connect_btn = document.getElementById('connect_btn');
 const remote_video = document.getElementById('remote_video');
-const error_display = document.getElementById('error_display');
+const status_display = document.getElementById('status_display');
 
 async function init() {
   console.log('Connect button clicked');
@@ -12,7 +12,7 @@ async function init() {
     transport = new WebTransport(url);
     await transport.ready;
     console.log('wt session is ready');
-    error_display.textContent = 'Connected';
+    status_display.textContent = 'Connected';
     
     const pc = new RTCPeerConnection();
     pc.ontrack = (event) => {
@@ -40,8 +40,8 @@ async function init() {
 
     console.log('spd-offer',JSON.stringify(message))
     transport.closed
-      .then(() => {error_display.textContent = 'Session closed';})
-      .catch((err) => {error_display.textContent = 'Session closed unexpectedly';});
+      .then(() => {status_display.textContent = 'Session closed';})
+      .catch((err) => {status_display.textContent = 'Session closed unexpectedly';});
 
     await writer.write((encoder.encode(JSON.stringify(message))));
     console.log('sent sdp offer to server');
@@ -51,14 +51,23 @@ async function init() {
       while (true) {
         const { value, done } = await reader.read();
         if (done) {
-          error_display.textContent = 'stream closed';
+          status_display.textContent = 'stream closed';
           break;
         }
         buffer += decoder.decode(value);
         try {
           const message = JSON.parse(buffer);
           console.log('Received complete json:', message);
-          error_display.textContent = "Received reply";
+          status_display.textContent = "Received reply";
+          if (message.type === "sdp-answer") {
+            const remoteDesc = new RTCSessionDescription({
+              type: "answer",
+              sdp: message.sdp
+            });
+            await pc.setRemoteDescription(remoteDesc);
+            status_display.textContent = "Hand shake completed; connection established";
+          }
+
           buffer = "";
         } catch (e) {
           // not a complete json. buffer.
@@ -70,7 +79,7 @@ async function init() {
   
   catch (e) {
     console.error('webTransport failed:', e);
-    error_display.textContent = `Error: ${e.message}`;
+    status_display.textContent = `Error: ${e.message}`;
   }
 
 }

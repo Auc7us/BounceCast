@@ -19,6 +19,11 @@ QVIS_URL = "https://qvis.quictools.info/"
 
 templates = Jinja2Templates(directory=os.path.join(ROOT, "templates"))
 
+class TempVideoTrack(MediaStreamTrack):
+    kind = "video"
+    async def recv(self):
+        await asyncio.sleep(1/30)
+        return None
 
 async def homepage(request):
     """
@@ -37,24 +42,37 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
     await send({"type": "webtransport.accept"})
     print("wt connected")
     buffer = b""
+    pc = RTCPeerConnection()
     while True:
         message = await receive()
         if message["type"] == "webtransport.stream.receive":
             buffer += message["data"]
             try:
                 obj = json.loads(buffer.decode())
-                print("received:", obj)
+                # print("received:", obj)
 
                 if obj.get("type") == "sdp-offer":
                     print("received sdp offer ")
-                    print(obj["sdp"])
+                    # print(obj["sdp"])
+                    await pc.setRemoteDescription(RTCSessionDescription(sdp=obj["sdp"], type="offer"))
+                    pc.addTrack(TempVideoTrack())
+
+                    answer = await pc.createAnswer()
+                    await pc.setLocalDescription(answer)
+
+                    answer_message = {
+                        "type": "sdp-answer",
+                        "sdp": pc.localDescription.sdp
+                    }
+
+                    await send({
+                        "data": json.dumps(answer_message).encode(),
+                        "stream": message["stream"],
+                        "type": "webtransport.stream.send",
+                    })
+                    print("replied with sdp answer")
 
                 buffer = b""
-                await send({
-                    "data": json.dumps({"offer status": "recieved"}).encode(),
-                    "stream": message["stream"],
-                    "type": "webtransport.stream.send",
-                })
 
             except json.JSONDecodeError:
                 pass
