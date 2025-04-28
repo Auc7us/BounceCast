@@ -1,6 +1,14 @@
 # Work tracker
 
-Note: Use webRTC(aiortc) and webTransport(aioquic)
+Note: Use webRTC(aiortc) and webTransport(aioquic)</br>
+
+instructions :
+
+- Run `python3 http3_server.py -c certificate.pem -k certificate.key` for server
+- Run `google-chrome   --enable-experimental-web-platform-features   --ignore-certificate-errors-spki-list=ggR1vjmsgl5RdfYS3f5C2nYyZ3LRrjfOyD/Va/JLcXQ=   --origin-to-force-quic-on=localhost:4433   https://localhost:4433/` for web app
+- Click on `connect` to start
+- Modify `window_size`, `framerate`, `initial velocity vector` and `coefficient of restituition` in [demo.py](../server/demo.py)
+
 
 ## Sim
 - [x] Create sandbox.py to design the sim
@@ -10,18 +18,19 @@ Note: Use webRTC(aiortc) and webTransport(aioquic)
 
 ## Client
 - [x] Setup simple webApp using js
-- [x] Send a webRTC request over webtransport 
+- [x] Send a webRTC request over webtransport (tried hard to set up own webTransport http3 server based on googlechrome/examples; switched to using [demo.py](https://github.com/aiortc/aioquic/blob/main/examples/demo.py) and [http3_server.py](https://github.com/aiortc/aioquic/blob/main/examples/http3_server.py) example from aioquic after wasting a lot of time)
+(to gen key and certificate, look at comment in [googlechrome/samples/webtransport/webtransport_server.py](https://github.com/GoogleChrome/samples/blob/gh-pages/webtransport/webtransport_server.py))
 
 ## Server
-- [x] Establish handshake by confirming connection with client
-- [ ] Spawn Simulation Thread
-- [ ] Consume frames
-- [ ] Encode in h.264 
-- [ ] Send over webRTC
+- [x] Establish handshake by confirming connection with client (datagrams were small and are apparently inherently unreliable for handshakes by design, the offer was 5.5kb from client i kept getting errors so i switch to stream, encountered unterminated json and realised that streams are sent as packets so added buffers on server and client to send and receive long messages)
+- [x] Spawn Simulation Thread (used a queue of size 10 as )
+- [x] Consume frames 
+- [x] Encode in h.264 (used aiortc/examples's force_codec)
+- [x] Send over webRTC (Verified using chrome://webrtc-internals/)
 
 ## Client
-- [ ] get frames from server
-- [ ] Display frame and find ball location
+- [x] get frames from server
+- [x] Display frame and find ball location
 - [ ] Return location and meta data via WebTransport
 
 ## Server
