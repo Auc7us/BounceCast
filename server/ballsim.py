@@ -54,14 +54,14 @@ class Ball:
         return center
 
 class BallSimulator:
-    def __init__(self, width=640, height=480, fps=60, gravity=980, velocity=(1000.0, 1000.0), restitution=0.99):
+    def __init__(self, width=640, height=480, fps=60, gravity=980, velocity=(1000.0, 1000.0), restitution=0.98):
         self.width = width
         self.height = height
         self.fps = fps
         self.gravity = gravity
         self.initial_velocity = velocity
         self.restitution = restitution
-
+        self.current_center = None
         self.frame_interval = 1.0 / fps
         self.running = False
         self.thread = None
@@ -102,7 +102,7 @@ class BallSimulator:
 
             frame.fill(0)  # Reset Env for new frame
             ball.update(dt, coeff_of_restitution=self.restitution)
-            current_center = ball.draw(frame)
+            self.current_center = ball.draw(frame)
 
             # Push frame into queue
             try:
