@@ -73,7 +73,6 @@ async function init() {
         buffer += decoder.decode(value);
         try {
           const message = JSON.parse(buffer);
-          console.log('Received complete json');
           status_display.textContent = "Received reply";
           if (message.type === "sdp-answer") {
             console.log('Received sdp answer', message.sdp);
@@ -109,7 +108,7 @@ async function init() {
 function processFrame() {
   const video = document.getElementById('remote_video');
   const canvas = document.getElementById('hidden_canvas');
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   const frameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
