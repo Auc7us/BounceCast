@@ -28,12 +28,9 @@ from starlette.types import Receive, Scope, Send
 ROOT = os.path.dirname(__file__)
 STATIC_ROOT = os.environ.get("STATIC_ROOT", os.path.join(ROOT, "client"))
 STATIC_URL = "/"
-# LOGS_PATH = os.path.join(STATIC_ROOT, "logs")
-# QVIS_URL = "https://qvis.quictools.info/"
 
-templates = Jinja2Templates(directory=os.path.join(ROOT, "templates"))
-
-frame_queue = queue.Queue(maxsize=1)
+pcs = set()
+sim = None
 
 class BallSimVideoTrack(MediaStreamTrack):
     kind = "video"
@@ -84,8 +81,8 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
     print("wt connected")
     buffer = b""
     pc = RTCPeerConnection()
+    pcs.add(pc)
     stream_id = None
-    sim = None
 
     while True:
         message = await receive()
@@ -157,16 +154,33 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
                 pass
 
 
+async def on_shutdown():
+    global sim, pcs
+
+    if sim and sim.running:
+        sim.stop()
+        print("simulator thread stopped")
+
+    if pcs:
+        coros = [pc.close() for pc in pcs]
+        await asyncio.gather(*coros)
+        pcs.clear()
+        print("peer connections closed")
+        await asyncio.sleep(0.5)
+    print("Demo shutdown complete")
+
+
 starlette = Starlette(
     routes=[
         Route("/", homepage),
         Mount(STATIC_URL, StaticFiles(directory=STATIC_ROOT, html=True)),
-    ]
+    ],
 )
-
 
 async def app(scope: Scope, receive: Receive, send: Send) -> None:
     if scope["type"] == "webtransport" and scope["path"] == "/wt":
         await wt(scope, receive, send)
     else:
         await starlette(scope, receive, send)
+
+app.on_shutdown = on_shutdown 
