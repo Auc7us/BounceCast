@@ -1,10 +1,8 @@
-#
-# demo application for http3_server.py
-#
-
 import datetime
 import os
 import json
+import asyncio
+from aiortc import RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
 
 from starlette.applications import Starlette
 from starlette.responses import FileResponse
@@ -38,31 +36,28 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
     assert message["type"] == "webtransport.connect"
     await send({"type": "webtransport.accept"})
     print("wt connected")
-    # echo back received data
+    buffer = b""
     while True:
         message = await receive()
         if message["type"] == "webtransport.stream.receive":
-            data = message["data"]
-            # print("received:", data.decode())
-            obj = json.loads(data.decode())
+            buffer += message["data"]
+            try:
+                obj = json.loads(buffer.decode())
+                print("received:", obj)
 
-            if obj.get("type") == "sdp-offer":
-                print("received sdp offer ")
-                print(obj["sdp"])
-            await send(
-                {
-                    "data": message["data"],
+                if obj.get("type") == "sdp-offer":
+                    print("received sdp offer ")
+                    print(obj["sdp"])
+
+                buffer = b""
+                await send({
+                    "data": json.dumps({"offer status": "recieved"}).encode(),
                     "stream": message["stream"],
                     "type": "webtransport.stream.send",
-                }
-            )
-        elif message["type"] == "webtransport.datagram.receive":
-            await send(
-                {
-                    "data": message["data"],
-                    "type": "webtransport.datagram.send",
-                }
-            )
+                })
+
+            except json.JSONDecodeError:
+                pass
 
 
 starlette = Starlette(

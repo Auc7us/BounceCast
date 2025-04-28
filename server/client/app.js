@@ -15,7 +15,13 @@ async function init() {
     error_display.textContent = 'Connected';
     
     const pc = new RTCPeerConnection();
-    const offer = await pc.createOffer();
+    pc.ontrack = (event) => {
+      if (event.track.kind === 'video') {
+        remote_video.srcObject = event.streams[0];
+      }
+    };
+
+    const offer = await pc.createOffer({ offerToReceiveVideo: true });
     await pc.setLocalDescription(offer);
 
     const sdpOfferString = offer.sdp;
@@ -32,6 +38,7 @@ async function init() {
       sdp: sdpOfferString
     };
 
+    console.log('spd-offer',JSON.stringify(message))
     transport.closed
       .then(() => {error_display.textContent = 'Session closed';})
       .catch((err) => {error_display.textContent = 'Session closed unexpectedly';});
@@ -40,13 +47,22 @@ async function init() {
     console.log('sent sdp offer to server');
 
     (async () => {
+      let buffer = "";
       while (true) {
         const { value, done } = await reader.read();
         if (done) {
           error_display.textContent = 'stream closed';
           break;
         }
-        error_display.textContent = decoder.decode(value);
+        buffer += decoder.decode(value);
+        try {
+          const message = JSON.parse(buffer);
+          console.log('Received complete json:', message);
+          error_display.textContent = "Received reply";
+          buffer = "";
+        } catch (e) {
+          // not a complete json. buffer.
+        }
       }
     })();
 
