@@ -4,11 +4,19 @@ import asyncio
 import numpy as np
 from av import VideoFrame
 import fractions
-import threading
 import queue
 from ballsim import BallSimulator
 
 from aiortc import RTCPeerConnection, RTCSessionDescription, MediaStreamTrack, RTCRtpSender
+
+sim_config = {
+    "width": 640,
+    "height": 480,
+    "fps": 60,
+    "grav": 980,
+    "vel": (1000.0, 1000.0),
+    "cor": 0.98
+}
 
 from starlette.applications import Starlette
 from starlette.responses import FileResponse
@@ -82,10 +90,17 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
             buffer += message["data"]
             try:
                 obj = json.loads(buffer.decode())
+            
                 if obj.get("type") == "sdp-offer":
-                    print("received sdp offer ")
-                    
-                    sim = BallSimulator(width=640, height=480, fps=60, gravity=980, velocity=(1000.0, 1000.0), restitution=0.98)
+                    print("received sdp offer ")                   
+                    sim = BallSimulator(
+                        width=sim_config["width"],
+                        height=sim_config["height"],
+                        fps=sim_config["fps"],
+                        gravity=sim_config["grav"],
+                        velocity=sim_config["vel"],
+                        restitution=sim_config["cor"],
+                    )
                     sim.start()
                     track = BallSimVideoTrack(sim)
                     sender = pc.addTrack(track)
@@ -106,6 +121,18 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
                         "type": "webtransport.stream.send",
                     })
                     print("replied with sdp answer")
+                
+                if obj.get("type") == "detected-center":
+                    if sim is not None and sim.current_center is not None:
+                        current_center = sim.current_center
+                        # print(current_center)
+                        # print(type(obj["x"]),",",type(obj["x"]))
+                        diff_x = current_center[0] - float(obj["x"])
+                        diff_y = current_center[1] - float(obj["y"])
+                        print(f"Error X: {diff_x:.2f}, Error Y: {diff_y:.2f}")
+                    else:
+                        print("no center available, sim not started")
+
 
                 buffer = b""
 

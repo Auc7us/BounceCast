@@ -4,7 +4,7 @@ Note: Use webRTC(aiortc) and webTransport(aioquic)</br>
 
 instructions :
 
-- Run `python3 http3_server.py -c certificate.pem -k certificate.key` for server
+- Run `python3 http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 980 --vel 1000.0 1000.0 --cor 1.0` for server
 - Run `google-chrome   --enable-experimental-web-platform-features   --ignore-certificate-errors-spki-list=ggR1vjmsgl5RdfYS3f5C2nYyZ3LRrjfOyD/Va/JLcXQ=   --origin-to-force-quic-on=localhost:4433   https://localhost:4433/` for web app
 - Click on `connect` to start
 - Modify `window_size`, `framerate`, `initial velocity vector` and `coefficient of restituition` in [demo.py](../server/demo.py)
@@ -32,11 +32,11 @@ instructions :
 ## Client
 - [x] get frames from server
 - [x] Display frame and find ball location
-- [ ] Return location via WebTransport copying the frame to hiddencanvas, get pixel data, find weighted average  of with their indices on red channel to find centroid, used a small r>5 to remove minor compression artifacts if they occur; noticed some in vp8 before forcing codec, not sure if theyll occure here but just being safe. 
+- [x] Return location via WebTransport copying the frame to hiddencanvas, get pixel data, find weighted average  of with their indices on red channel to find centroid, used a small r>5 to remove minor compression artifacts if they occur; noticed some in vp8 before forcing codec, not sure if theyll occure here but just being safe. 
 
 ## Server
-- [ ] Receive detected location
-- [ ] Compute error and transmit to client via WebTransport
+- [x] Receive detected location 
+- [ ] Compute error and transmit to client via WebTransport (store current location when frames geenrated, access in demo.py and check with received detections, maybe used to check latency? better to have constant velocity (coeff or restitution = 1; gravity = 0))
 
 ## Client
 - [ ] Receive the transmitted err data and display
