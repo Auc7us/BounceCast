@@ -22,7 +22,13 @@ async function init() {
           function animationLoop() {
             const center = processFrame();
             if (center) {
-              console.log('Using center:', center);
+              const message = {
+                type: "detected-center",
+                x: center.x,
+                y: center.y
+              };
+              writer.write(encoder.encode(JSON.stringify(message)));
+              console.log('set detectedcenter:', center);
             }
             requestAnimationFrame(animationLoop);
           }
@@ -102,7 +108,7 @@ function processFrame() {
 
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   const frameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const pixels = frameData.data; // RGBA values
+  const pixels = frameData.data;
   let weightedSumX = 0;
   let weightedSumY = 0;
   let totalWeight = 0;
@@ -123,10 +129,9 @@ function processFrame() {
   if (totalWeight > 0) {
     const centerX = weightedSumX / totalWeight;
     const centerY = weightedSumY / totalWeight;
-    center = { x: centerX, y: centerY };
-    console.log(`Ball center at: (${centerX.toFixed(2)}, ${centerY.toFixed(2)})`);
+    center = { x: centerX.toFixed(3), y: centerY.toFixed(3) };
   } else {
-    console.log("Ball not detected.");
+    console.log("no ball detecte.");
   }
   return center;
 
