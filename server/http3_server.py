@@ -4,6 +4,7 @@ import importlib
 import logging
 import time
 from collections import deque
+import signal
 from email.utils import formatdate
 from typing import Callable, Deque, Dict, List, Optional, Union, cast
 
@@ -487,7 +488,7 @@ async def main(
     session_ticket_store: SessionTicketStore,
     retry: bool,
 ) -> None:
-    await serve(
+    server = await serve(
         host,
         port,
         configuration=configuration,
@@ -496,7 +497,22 @@ async def main(
         session_ticket_handler=session_ticket_store.add,
         retry=retry,
     )
-    await asyncio.Future()
+    
+    shutdown = asyncio.Event()
+
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, shutdown.set)
+
+    print("use ctrl+c to stop server")
+    await shutdown.wait()
+
+    server.close()
+
+    if hasattr(application, "on_shutdown"):
+        await application.on_shutdown()
+
+    print("Shutdown complete.")    
 
 
 if __name__ == "__main__":
@@ -635,4 +651,6 @@ if __name__ == "__main__":
             )
         )
     except KeyboardInterrupt:
-        pass
+        if hasattr(application, "on_shutdown"):
+            asyncio.run(application.on_shutdown())
+        print("Shutdown complete.")

@@ -42,6 +42,9 @@ instructions :
 ## Client
 - [x] Receive the transmitted err data and display (limited to 2 decimal places as output statement was jittery)
 
+## Shutdown
+- [x] Handle graceful shutdown (cleaned up resources based on on_shutdown from webcam.py example in aiortc/examples and closed simulation thread. caught sigint in http3_server and triggered on_shutdown)
+
 # Testing
 - [ ] Unit tests for client functions (frame parsing, error display, WebTransport/WebRTC connections)
 - [ ] Unit tests for server functions (WebTransport handshake, error calculation, graceful shutdown)

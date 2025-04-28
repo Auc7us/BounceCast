@@ -74,6 +74,8 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
     WebTransport echo endpoint.
     """
     # accept connection
+    global sim
+    global pcs
     print("starting wt connection")
     message = await receive()
     assert message["type"] == "webtransport.connect"
