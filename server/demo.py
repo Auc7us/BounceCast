@@ -2,6 +2,10 @@ import datetime
 import os
 import json
 import asyncio
+import numpy as np
+from av import VideoFrame
+import fractions
+
 from aiortc import RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
 
 from starlette.applications import Starlette
@@ -21,9 +25,24 @@ templates = Jinja2Templates(directory=os.path.join(ROOT, "templates"))
 
 class TempVideoTrack(MediaStreamTrack):
     kind = "video"
+
+    def __init__(self):
+        super().__init__()
+        self.width = 640
+        self.height = 480
+        self.frame_count = 0
+
     async def recv(self):
-        await asyncio.sleep(1/30)
-        return None
+        self.frame_count += 1
+        print(f"Sending frame {self.frame_count}")
+        await asyncio.sleep(1 / 30) 
+        frame = np.full((self.height, self.width, 3), (int(self.frame_count%255), 120, 225), dtype=np.uint8)
+        # Convert to VideoFrame
+        video_frame = VideoFrame.from_ndarray(frame, format="bgr24")
+        video_frame.pts = self.frame_count
+        video_frame.time_base = fractions.Fraction(1, 30)
+
+        return video_frame
 
 async def homepage(request):
     """
@@ -49,11 +68,8 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
             buffer += message["data"]
             try:
                 obj = json.loads(buffer.decode())
-                # print("received:", obj)
-
                 if obj.get("type") == "sdp-offer":
                     print("received sdp offer ")
-                    # print(obj["sdp"])
                     await pc.setRemoteDescription(RTCSessionDescription(sdp=obj["sdp"], type="offer"))
                     pc.addTrack(TempVideoTrack())
 
