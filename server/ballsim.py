@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 import time
+import threading 
+import queue
 
 class Ball:
     """
@@ -9,14 +11,14 @@ class Ball:
     All colisions are perfectly elastic by default i.e. there are no losses. chnage coeff_of_restitution for realistic simulation.
     computes timestep dt for state update, in seconds, based on the fps required (currently set to 60).  
     """
-    def __init__(self, radius=12, window_width=640, window_height=480, gravity=980):
+    def __init__(self, radius=12, window_width=640, window_height=480, gravity=980, initial_velocity=(1000.0, 1000.0)):
         self.radius = radius
         self.w = window_width
         self.h = window_height
         self.gravity = gravity
         # Starting position and velocity 
         self.pos = np.array([self.w / 2, self.h / 2], dtype=float) 
-        self.vel = np.array([1000.0, 1000.0], dtype=float)
+        self.vel = np.array(initial_velocity, dtype=float)
 
     def update(self, dt, coeff_of_restitution=1.0):
         """
@@ -49,38 +51,72 @@ class Ball:
         center = (int(round(self.pos[0])), int(round(self.pos[1])))
         cv2.circle(frame, center, self.radius, (0, 120, 255), -1)
 
-def run_simulation():
-    # Env Setup
-    width, height = 640, 480
-    fps = 60
-    frame_interval = 1.0 / fps
-    ball = Ball(radius=12, window_width=width, window_height=height, gravity=980)
-    frame = np.zeros((height, width, 3), dtype=np.uint8)
+        return center
 
-    prev_time = time.perf_counter()
+class BallSimulator:
+    def __init__(self, width=640, height=480, fps=60, gravity=980, velocity=(1000.0, 1000.0), restitution=0.99):
+        self.width = width
+        self.height = height
+        self.fps = fps
+        self.gravity = gravity
+        self.initial_velocity = velocity
+        self.restitution = restitution
 
-    while True:
-        loop_start = time.perf_counter()
-         #elapsed time since last physics update
-        dt = loop_start - prev_time
-        dt = min(frame_interval, dt) # in case of compute lag, cap to avoid errorous behavious
-        
-        frame.fill(0) # Reset Env for new frame
-        ball.update(dt, coeff_of_restitution=0.98)
-        prev_time = loop_start
-        ball.draw(frame)
-        cv2.imshow("Ball", frame)
-        key = cv2.waitKey(1) & 0xFF
-        if key == 27:  # hit ESC to quit
-            break
+        self.frame_interval = 1.0 / fps
+        self.running = False
+        self.thread = None
+        self.queue = queue.Queue(maxsize=10)
 
-        loop_end = time.perf_counter()
-        elapsed_sim_time = loop_end - loop_start
-        sleep_time = frame_interval - elapsed_sim_time
-        if sleep_time > 0:
-            time.sleep(sleep_time)
+    def start(self):
+        """
+        Start sim thread
+        """
+        if not self.running:
+            self.running = True
+            self.thread = threading.Thread(target=self._run, daemon=True)
+            self.thread.start()
 
-    cv2.destroyAllWindows()
+    def stop(self):
+        """
+        Stops sim thread
+        """
+        if self.running:
+            self.running = False
+            self.thread.join()
 
-if __name__ == "__main__":
-    run_simulation()
+    def _run(self):
+        """
+        Main simulation fucntion that calls for physics update and pushes frames to queue based on fps
+        """
+        ball = Ball(radius=12, window_width=self.width, window_height=self.height,
+                    gravity=self.gravity, initial_velocity=self.initial_velocity)
+        # Env Setup
+        frame = np.zeros((self.height, self.width, 3), dtype=np.uint8)
+        prev_time = time.perf_counter()
+
+        while self.running:
+            loop_start = time.perf_counter()
+            #elapsed time since last physics update
+            dt = loop_start - prev_time
+            dt = min(self.frame_interval, dt) # in case of compute lag, cap to avoid errorous behavious
+
+            frame.fill(0)  # Reset Env for new frame
+            ball.update(dt, coeff_of_restitution=self.restitution)
+            current_center = ball.draw(frame)
+
+            # Push frame into queue
+            try:
+                self.queue.put_nowait(frame.copy())
+            except queue.Full:
+                try:
+                    self.queue.get_nowait()
+                except queue.Empty:
+                    pass
+                self.queue.put_nowait(frame.copy())
+            prev_time = loop_start
+
+            loop_end = time.perf_counter()
+            sleep_time = self.frame_interval - (loop_end - loop_start)
+            if sleep_time > 0:
+                time.sleep(sleep_time)
+
