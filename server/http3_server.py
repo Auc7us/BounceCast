@@ -567,6 +567,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="increase logging verbosity"
     )
+    
+    parser.add_argument("--width", type=int, default=640, help="sim frame width / room width in cm")
+    parser.add_argument("--height", type=int, default=480, help="sim frame height / room height in cm")
+    parser.add_argument("--fps", type=int, default=60, help="sim fps")
+    parser.add_argument("--grav", type=float, default=980.0, help="gravity in cm/s^2")
+    parser.add_argument("--vel", type=float, nargs=2, default=(1000.0, 1000.0), help="initial ball velocity <vx vy> in cm/s")
+    parser.add_argument("--cor", type=float, default=0.98, help="coefficient of restitution ")
+
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -577,6 +585,15 @@ if __name__ == "__main__":
     # import ASGI application
     module_str, attr_str = args.app.split(":", maxsplit=1)
     module = importlib.import_module(module_str)
+
+    if hasattr(module, "sim_config"):
+        module.sim_config["width"] = args.width
+        module.sim_config["height"] = args.height
+        module.sim_config["fps"] = args.fps
+        module.sim_config["grav"] = args.grav
+        module.sim_config["vel"] = tuple(args.vel)
+        module.sim_config["cor"] = args.cor
+
     application = getattr(module, attr_str)
 
     # create QUIC logger
