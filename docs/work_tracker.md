@@ -22,7 +22,8 @@ instructions :
 (to gen key and certificate, look at comment in [googlechrome/samples/webtransport/webtransport_server.py](https://github.com/GoogleChrome/samples/blob/gh-pages/webtransport/webtransport_server.py))
 
 ## Server
-- [x] Establish handshake by confirming connection with client (datagrams were small and are apparently inherently unreliable for handshakes by design, the offer was 5.5kb from client i kept getting errors so i switch to stream, encountered unterminated json and realised that streams are sent as packets so added buffers on server and client to send and receive long messages)
+- [x] Establish handshake by confirming connection with client (datagrams were small and are apparently inherently unreliable for handshakes by design, the offer was 5.5kb from client i kept getting errors so i switch to stream, encountered unterminated json and realised that streams are sent as packets so added buffers on server and client to send and receive long messages) (not clear on what to send back after receiving offer, does it mean echo back? made no sense as it wasnt being used or displayed, assumed it to be responding with answer and sent it back with frames)
+- [x] Attempt streaming blank frames to test communication
 - [x] Spawn Simulation Thread (used a queue of size 10 as )
 - [x] Consume frames 
 - [x] Encode in h.264 (used aiortc/examples's force_codec)
@@ -31,7 +32,7 @@ instructions :
 ## Client
 - [x] get frames from server
 - [x] Display frame and find ball location
-- [ ] Return location and meta data via WebTransport
+- [ ] Return location via WebTransport
 
 ## Server
 - [ ] Receive detected location
