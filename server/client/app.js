@@ -28,7 +28,6 @@ async function init() {
                 y: center.y
               };
               writer.write(encoder.encode(JSON.stringify(message)));
-              console.log('set detectedcenter:', center);
             }
             requestAnimationFrame(animationLoop);
           }
@@ -82,6 +81,10 @@ async function init() {
             });
             await pc.setRemoteDescription(remoteDesc);
             status_display.textContent = "Hand shake completed; connection established";
+          }
+
+          if (message.type === "l2-error") {
+            status_display.textContent = `Reported L2 Error: ${message.val.toFixed(2)}`;
           }
 
           buffer = "";

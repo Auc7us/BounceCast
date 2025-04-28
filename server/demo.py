@@ -84,13 +84,17 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
     print("wt connected")
     buffer = b""
     pc = RTCPeerConnection()
+    stream_id = None
+    sim = None
+
     while True:
         message = await receive()
         if message["type"] == "webtransport.stream.receive":
             buffer += message["data"]
+            if stream_id is None:
+                stream_id = message["stream"]
             try:
                 obj = json.loads(buffer.decode())
-            
                 if obj.get("type") == "sdp-offer":
                     print("received sdp offer ")                   
                     sim = BallSimulator(
@@ -129,9 +133,22 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
                         # print(type(obj["x"]),",",type(obj["x"]))
                         diff_x = current_center[0] - float(obj["x"])
                         diff_y = current_center[1] - float(obj["y"])
-                        print(f"Error X: {diff_x:.2f}, Error Y: {diff_y:.2f}")
+                        l2err = (diff_x**2+diff_y**2)**0.5
                     else:
+                        l2err = 0.0
                         print("no center available, sim not started")
+
+                    loc_err_message = {
+                        "type": "l2-error",
+                        "val": l2err
+                    }
+
+                    await send({
+                        "data": json.dumps(loc_err_message).encode(),
+                        "stream": message["stream"],
+                        "type": "webtransport.stream.send",
+                    })
+                    # print("sent l2 err to client", loc_err_message)
 
 
                 buffer = b""
