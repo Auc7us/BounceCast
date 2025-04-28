@@ -5,6 +5,7 @@ const status_display = document.getElementById('status_display');
 async function init() {
   console.log('Connect button clicked');
   const url = 'https://localhost:4433/wt';
+  connect_btn.disabled = true;
 
   let transport;
   try {
@@ -72,9 +73,10 @@ async function init() {
         buffer += decoder.decode(value);
         try {
           const message = JSON.parse(buffer);
-          console.log('Received complete json:', message);
+          console.log('Received complete json');
           status_display.textContent = "Received reply";
           if (message.type === "sdp-answer") {
+            console.log('Received sdp answer', message.sdp);
             const remoteDesc = new RTCSessionDescription({
               type: "answer",
               sdp: message.sdp

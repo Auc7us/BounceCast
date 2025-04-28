@@ -40,7 +40,7 @@ instructions :
 - [x] Compute error and transmit to client via WebTransport (store current location when frames geenrated, access in demo.py and check with received detections, maybe used to check latency? better to have constant velocity (coeff or restitution = 1; gravity = 0))
 
 ## Client
-- [x] Receive the transmitted err data and display ()
+- [x] Receive the transmitted err data and display (limited to 2 decimal places as output statement was jittery)
 
 # Testing
 - [ ] Unit tests for client functions (frame parsing, error display, WebTransport/WebRTC connections)
