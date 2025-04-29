@@ -23,12 +23,6 @@ kubectl apply -f deploy/deployment.yaml
 kubectl apply -f deploy/service.yaml
 ```
 
-## Create a Tunnel (for LoadBalancer IP)
-
-```bash
-minikube tunnel
-```
-
 ## Check if pods running and service port is correct
 ```bash
 kubectl get pods
