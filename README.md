@@ -118,8 +118,9 @@ The application's server is available both as a python scripts and docker image.
 
  **You should now see an `orange ball` appear and bounce around on your screen** 
  **The `L2 error` is reported under the video in `red`**
-
+ ![alt text](image.png)
 **Note:** The status of the connection is also displayed in the same location of the error in red while no error is being received.
+![alt text](image-1.png)
 
 ## Tests
 
