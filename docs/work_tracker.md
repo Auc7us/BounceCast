@@ -2,7 +2,15 @@
 
 Note: Use webRTC(aiortc) and webTransport(aioquic)</br>
 
-instructions :
+## instructions :
+
+### Docker:
+- build docker image: `docker build -t nimble-challenge-server .`
+- run docker container: 
+`docker run --rm -p 4433:4433/udp --name nimble-local-test  nimble-challenge-server`
+- stop container: `docker stop nimble-local-test`
+
+### Python:
 - `cd server`
 - Run `python http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 0 --vel 1000.0 1000.0 --cor 1` for latency check from server
 - Run `python http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 980 --vel 1000.0 1000.0 --cor 0.98` for realistic stream from server
@@ -11,7 +19,6 @@ instructions :
 - Modify `window_size`, `framerate`, `initial velocity vector` and `coefficient of restituition` in [demo.py](../server/demo.py)
 
 To test:
-
 - Run `python server/unit_tests.py`
 
 ## Sim
@@ -55,7 +62,7 @@ To test:
 - [x] Document code  
 
 ## Deployment
-- [ ] Dockerize server
+- [x] Dockerize server (finalized minimal requirments.txt, tested using local run, eposing port directly didnt work, had to explicitly state udp to expose udp port)
 - [ ] Deploy using kubernetes
 - [ ] Document deploying and decisions
 - [ ] Share screen capture
