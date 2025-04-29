@@ -3,13 +3,16 @@
 Note: Use webRTC(aiortc) and webTransport(aioquic)</br>
 
 instructions :
-
-- Run `python3 http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 0 --vel 1000.0 1000.0 --cor 1` for latency check from server
-- Run `python3 http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 980 --vel 1000.0 1000.0 --cor 0.98` for realistic stream from server
+- `cd server`
+- Run `python http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 0 --vel 1000.0 1000.0 --cor 1` for latency check from server
+- Run `python http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 980 --vel 1000.0 1000.0 --cor 0.98` for realistic stream from server
 - Run `google-chrome   --enable-experimental-web-platform-features   --ignore-certificate-errors-spki-list=ggR1vjmsgl5RdfYS3f5C2nYyZ3LRrjfOyD/Va/JLcXQ=   --origin-to-force-quic-on=localhost:4433   https://localhost:4433/` for web app
 - Click on `connect` to start
 - Modify `window_size`, `framerate`, `initial velocity vector` and `coefficient of restituition` in [demo.py](../server/demo.py)
 
+To test:
+
+- Run `python server/unit_tests.py`
 
 ## Sim
 - [x] Create sandbox.py to design the sim
@@ -49,15 +52,7 @@ instructions :
 - [x] Unit tests for simulation worker (ball physics, frame generation, thread start and stop) 
 - [x] use unittest. 
 - [x] Pass all tests
-- [x] Documented
-
-- test_collision_with_floor: 
-
-- test_collision_with_roof
-
-- test_collision_with_left_wall
-
--  
+- [x] Document code  
 
 ## Deployment
 - [ ] Dockerize server
