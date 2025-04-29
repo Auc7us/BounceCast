@@ -42,7 +42,6 @@ class BallSimVideoTrack(MediaStreamTrack):
 
     async def recv(self):
         self.frame_count += 1
-        # get latest frame
         while True:
             try:
                 frame = self.sim.queue.get_nowait()
@@ -168,7 +167,7 @@ async def on_shutdown():
         await asyncio.gather(*coros)
         pcs.clear()
         print("peer connections closed")
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(0.5) # small wait to close collected coroutines
     print("Demo shutdown complete")
 
 

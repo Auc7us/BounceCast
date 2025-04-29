@@ -56,8 +56,8 @@ async function init() {
 
     console.log('spd-offer',JSON.stringify(message))
     transport.closed
-      .then(() => {status_display.textContent = 'Session closed';})
-      .catch((err) => {status_display.textContent = 'Session closed unexpectedly';});
+      .then(() => {status_display.textContent = 'Session closed by server';})
+      .catch((err) => {status_display.textContent = 'Server disconnected';});
 
     await writer.write((encoder.encode(JSON.stringify(message))));
     console.log('sent sdp offer to server');

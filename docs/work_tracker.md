@@ -33,7 +33,7 @@ instructions :
 ## Client
 - [x] get frames from server
 - [x] Display frame and find ball location
-- [x] Return location via WebTransport copying the frame to hiddencanvas, get pixel data, find weighted average  of with their indices on red channel to find centroid, used a small r>5 to remove minor compression artifacts if they occur; noticed some in vp8 before forcing codec, not sure if theyll occure here but just being safe. 
+- [x] Return location via WebTransport. (Unclear on what "both WebTransport" means, assuming it means the bidirectional stream)( copying the frame to hiddencanvas, get pixel data, find weighted average  of with their indices on red channel to find centroid, used a small r>5 to remove minor compression artifacts if they occur; noticed some in vp8 before forcing codec, not sure if theyll occure here but just being safe. )
 
 ## Server
 - [x] Receive detected location 
@@ -43,13 +43,21 @@ instructions :
 - [x] Receive the transmitted err data and display (limited to 2 decimal places as output statement was jittery)
 
 ## Shutdown
-- [x] Handle graceful shutdown (cleaned up resources based on on_shutdown from webcam.py example in aiortc/examples and closed simulation thread. caught sigint in http3_server and triggered on_shutdown)
+- [x] Handle graceful shutdown of server (cleaned up resources based on on_shutdown from webcam.py example in aiortc/examples and closed simulation thread. caught sigint in http3_server and triggered on_shutdown)
 
-# Testing
-- [ ] Unit tests for client functions (frame parsing, error display, WebTransport/WebRTC connections)
-- [ ] Unit tests for server functions (WebTransport handshake, error calculation, graceful shutdown)
-- [ ] Unit tests for simulation worker (ball physics and frame generation)
-- [ ] Any end to end tests?
+## Testing
+- [x] Unit tests for simulation worker (ball physics, frame generation, thread start and stop) 
+- [x] use unittest. 
+- [x] Pass all tests
+- [x] Documented
+
+- test_collision_with_floor: 
+
+- test_collision_with_roof
+
+- test_collision_with_left_wall
+
+-  
 
 ## Deployment
 - [ ] Dockerize server
