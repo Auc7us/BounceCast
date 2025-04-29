@@ -4,7 +4,9 @@ const status_display = document.getElementById('status_display');
 
 async function init() {
   console.log('Connect button clicked');
-  const url = 'https://localhost:4433/wt';
+  const origin = window.location.protocol + '//' + window.location.host;
+  const url = `${origin}/wt`;
+
   connect_btn.disabled = true;
 
   let transport;

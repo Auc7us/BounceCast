@@ -2,21 +2,28 @@
 
 Note: Use webRTC(aiortc) and webTransport(aioquic)</br>
 
-## instructions :
+## Instructions :
 
-### Docker:
+### Server:
+#### Docker:
 - build docker image: `docker build -t nimble-challenge-server .`
 - run docker container: 
 `docker run --rm -p 4433:4433/udp --name nimble-local-test  nimble-challenge-server`
 - stop container: `docker stop nimble-local-test`
 
-### Python:
+#### Python:
 - `cd server`
 - Run `python http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 0 --vel 1000.0 1000.0 --cor 1` for latency check from server
 - Run `python http3_server.py -c certificate.pem -k certificate.key --fps 60 --grav 980 --vel 1000.0 1000.0 --cor 0.98` for realistic stream from server
+
+### Client:
+In a new terminal:
 - Run `google-chrome   --enable-experimental-web-platform-features   --ignore-certificate-errors-spki-list=ggR1vjmsgl5RdfYS3f5C2nYyZ3LRrjfOyD/Va/JLcXQ=   --origin-to-force-quic-on=localhost:4433   https://localhost:4433/` for web app
 - Click on `connect` to start
-- Modify `window_size`, `framerate`, `initial velocity vector` and `coefficient of restituition` in [demo.py](../server/demo.py)
+
+
+**Note:** You can modify `frame window size`, `framerate`, `initial velocity vector` and `coefficient of restituition` in [demo.py](../server/demo.py) or pass them as arguments used to run http3_server.py in cli as suggested above or in the [dockerfile](../dockerfile).
+
 
 To test:
 - Run `python server/unit_tests.py`
@@ -63,8 +70,15 @@ To test:
 
 ## Deployment
 - [x] Dockerize server (finalized minimal requirments.txt, tested using local run, eposing port directly didnt work, had to explicitly state udp to expose udp port)
-- [ ] Deploy using kubernetes
-- [ ] Document deploying and decisions
+- [x] Deploy using kubernetes(Challenges in Kubernetes:
+
+    Load Balancer Support: Cloud vendor LoadBalancers may have limited support for QUIC, especially concerning IETF QUIC protocol and QUIC address migration. 
+
+Kube-proxy Issues: When using NodePort to expose QUIC services, if kube-proxy adopts the ipvs mode, it can encounter bugs that discard UDP packets, potentially causing EMQX QUIC services to be unavailable. 
+)
+- [x] Document deploying 
+- [x] and decisions
+- [x] add clear comments
 - [ ] Share screen capture
 - [ ] include submission_date.txt containing the date that you finished the code
 - [ ] copress in valid zip and upload (git archive --format=zip --output /full/path/to/zipfile.zip main )

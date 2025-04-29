@@ -2,7 +2,7 @@
 FROM python:3.9-slim
 
 # set working directory
-WORKDIR /nimble-challenge-2025
+WORKDIR /nimble-challenge
 
 # system dependencies
 RUN apt-get update && apt-get install -y \
