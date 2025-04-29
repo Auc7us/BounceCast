@@ -12,7 +12,7 @@ The thread generates frames of a bouncing ball simulation at a configurable FPS.
 
 Upon receiving the frames, the web app/client displays the video, copies the frame over to a hidden canvas element, and gets the pixel data to compute the centroid of the ball using the red channel. This ball center is then sent back to the server over the same WebTransport stream for further processing.
 
-The server receives this detected center and computes the L2 norm to find the difference between the client-reported detected centers and the current center from the latest frame generated. The server then finally streams the error back to the client web app over the WebTransport stream that's open, and the client receives and displays the error on the browser.
+The server receives this detected center, computes the L2 norm to find the difference between the client-reported detected centers and the current center from the latest frame generated. The server then finally streams the error back to the client web app over the WebTransport stream that's open, and the client receives and displays the error on the browser.
 
 The repository also contains unit tests for all the Python functions used in the simulation.
 
@@ -114,6 +114,7 @@ The application's server is available both as a python scripts and docker image.
     ```bash
     google-chrome   --enable-experimental-web-platform-features   --ignore-certificate-errors-spki-list=ggR1vjmsgl5RdfYS3f5C2nYyZ3LRrjfOyD/Va/JLcXQ=   --origin-to-force-quic-on=localhost:4433   https://localhost:4433/
     ```
+    _Note:_ If using your own certificate.pem and certificate.key, use the fingerprint generated above after `-spki-list=`
 - Finally to connect to the server and start streaming, click the `Connect to Server` button.
 
  **You should now see an `orange ball` appear and bounce around on your screen** 
