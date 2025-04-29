@@ -49,9 +49,9 @@ Note: Use webRTC(aiortc) and webTransport(aioquic)</br>
 - [x] Document deploying 
 - [x] and decisions
 - [x] add clear comments
-- [ ] Share screen capture
+- [x] Share screen capture
 - [x] include submission_date.txt containing the date that you finished the code
-- [ ] copress in valid zip and upload (git archive --format=zip --output /full/path/to/zipfile.zip main )
+- [x] copress in valid zip and upload (git archive --format=zip --output /full/path/to/zipfile.zip main )
 
 
 ## Instructions :
