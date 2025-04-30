@@ -2,14 +2,10 @@
 FROM python:3.9-slim
 
 # set working directory
-WORKDIR /nimble-challenge
+WORKDIR /bounce-cast
 
 # system dependencies
 RUN apt-get update && apt-get install -y \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,4 +20,4 @@ COPY server/ server/
 EXPOSE 4433/udp
 
 # run the server on start
-CMD ["python3", "server/http3_server.py", "-c", "server/certificate.pem", "-k", "server/certificate.key", "--fps", "60", "--grav", "0", "--vel", "1000.0", "1000.0", "--cor", "1"]
+CMD ["python3", "server/http3_server.py", "-c", "server/certificate.pem", "-k", "server/certificate.key", "--fps", "60", "--grav", "980", "--vel", "1000.0", "1000.0", "--cor", "0.97"]
