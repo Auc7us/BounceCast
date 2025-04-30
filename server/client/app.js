@@ -72,9 +72,16 @@ async function init() {
           status_display.textContent = 'stream closed';
           break;
         }
-        buffer += decoder.decode(value);
-        try {
-          const message = JSON.parse(buffer);
+    
+        // accumulate and split at end of line tag
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('eol');
+        buffer = parts.pop();  // leftover message that is part of next json
+    
+        for (const line of parts) {
+          if (!line) continue;
+    
+          const message = JSON.parse(line);
           status_display.textContent = "Received reply";
           if (message.type === "sdp-answer") {
             console.log('Received sdp answer', message.sdp);
@@ -89,10 +96,6 @@ async function init() {
           if (message.type === "l2-error") {
             status_display.textContent = `Reported L2 Error: ${message.val.toFixed(2)}`;
           }
-
-          buffer = "";
-        } catch (e) {
-          // not a complete json. buffer.
         }
       }
     })();

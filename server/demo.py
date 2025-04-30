@@ -131,8 +131,10 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
                         "sdp": pc.localDescription.sdp
                     }
 
+                    payload = json.dumps(answer_message).encode()+ b"eol"
+
                     await send({
-                        "data": json.dumps(answer_message).encode(),
+                        "data": payload,
                         "stream": message["stream"],
                         "type": "webtransport.stream.send",
                     })
@@ -156,10 +158,12 @@ async def wt(scope: Scope, receive: Receive, send: Send) -> None:
                         "val": l2err
                     }
 
+                    payload = json.dumps(loc_err_message).encode() + b"eol"
+
                     await send({
-                        "data": json.dumps(loc_err_message).encode(),
-                        "stream": message["stream"],
                         "type": "webtransport.stream.send",
+                        "stream": message["stream"],
+                        "data": payload,
                     })
                     # print("sent l2 err to client", loc_err_message)
 
