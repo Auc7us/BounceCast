@@ -6,9 +6,7 @@ This repository contains a real-time web application that combines [WebTransport
 
 The frontend is a vanilla JavaScript app served by a Python backend. It enables real-time in-browser video playback and two-way data exchange.
 
-
-<!-- ![alt text](<Screencast from 04-30-2025 01_38_51 PM.gif>) -->
-<img src="Screencast from 04-30-2025 01_38_51 PM.gif" width="700">
+<img src="Screencast from 04-30-2025 01-38-51 PM.gif" width="700">
 
 ### Features
 
