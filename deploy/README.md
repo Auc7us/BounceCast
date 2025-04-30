@@ -1,4 +1,6 @@
-# Nimble Challenge Deployment Guide
+# BounceCast MiniKube Deployment Guide
+
+<img src="Screencast from 04-30-2025 01_07_58 PM.gif" width="700">
 
 ## Prerequisites
 - Install [Docker](https://docs.docker.com/engine/install/ubuntu/)
@@ -13,7 +15,7 @@ minikube start --driver=docker
 ```
 ```bash
 eval $(minikube docker-env)
-docker build -t nimble-challenge-server:latest .
+docker build -t bounce-cast-server:latest .
 ```
 
 ## Apply Kubernetes Deployment and Service
@@ -35,4 +37,3 @@ kubectl get svc my-service
 MINIKUBE_IP=$(minikube ip)
 google-chrome   --enable-quic   --enable-experimental-web-platform-features   --ignore-certificate-errors   --ignore-certificate-errors-spki-list=ggR1vjmsgl5RdfYS3f5C2nYyZ3LRrjfOyD/Va/JLcXQ=   --origin-to-force-quic-on=${MINIKUBE_IP}:30403   https://${MINIKUBE_IP}:30403/
 ```
-

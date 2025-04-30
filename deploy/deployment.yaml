@@ -14,8 +14,8 @@ spec:
     spec:
       hostNetwork: true
       containers:
-      - name: nimble-server
-        image: nimble-challenge-server:latest
+      - name: bounce-cast-server
+        image: bounce-cast-server:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 4433
